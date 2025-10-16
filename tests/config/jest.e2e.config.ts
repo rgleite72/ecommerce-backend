@@ -1,6 +1,7 @@
 import type { Config } from 'jest';
 
 const config: Config = {
+  rootDir: '../..',             // <- força raiz do repo
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
