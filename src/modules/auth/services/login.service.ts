@@ -1,19 +1,20 @@
 // src/modules/auth/services/login.service.ts
 import { ICreateSessionDTO } from "../dto/create-session.dto";
 import { AppError } from "../../../shared/errors/AppError";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 import { signAccess, signRefresh, decodeRefreshExp } from "../../../shared/auth/jwt";
 import { refreshStore } from "../../../shared/auth/refresh-store";
-import { appDataSource } from "../../../app/db/data-source";
+import { AppDataSource } from "../../../app/db/data-source";
 import { UserEntity } from "../../users/domain/entities/user.entity";
+
 
 export class LoginService {
   async execute(input: ICreateSessionDTO) {
     const email = input.email.trim().toLowerCase();
     const password = input.password;
 
-    const repo = appDataSource.getRepository(UserEntity);
+    const repo = AppDataSource.getRepository(UserEntity);
     const user = await repo.findOne({ where: { email } });
 
     if (!user || !user.passwordHash) {

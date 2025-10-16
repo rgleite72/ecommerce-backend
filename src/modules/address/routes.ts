@@ -11,10 +11,10 @@ import { AddressEntity } from "./domain/entities/address.entity";
 
 import { authenticateJWT } from "../../app/middlewares/authenticateJWT";
 import { permit } from "../../app/middlewares/permit";
-import { appDataSource } from "../../app/db/data-source";
+import { AppDataSource } from "../../app/db/data-source";
 
 // Cria dependências
-const repo = new AddressRepositoy(appDataSource.getRepository(AddressEntity));
+const repo = new AddressRepositoy(AppDataSource.getRepository(AddressEntity));
 const createSvc = new CreateAddressService(repo);
 const updateSvc = new UpdateAddressService(repo);
 const listSvc = new ListAddressByCustomer(repo);

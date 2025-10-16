@@ -7,11 +7,18 @@ on:
       - 'v*'     # releases
       - 'rc-*'   # release candidates
   pull_request:
+    branches: [ main ]   # <- garante execução em PRs para main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

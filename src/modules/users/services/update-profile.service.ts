@@ -1,6 +1,6 @@
 import type { IUsersRepository } from "../repositories/users.repository";
 import { AppError } from "../../../shared/errors/AppError";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 // Perfil: segurança padrão → não altera role, nem e-mail
 type UpdateProfileDTO = {

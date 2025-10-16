@@ -2,7 +2,7 @@
 import type { IUsersRepository, UpdateUserInput } from "../repositories/users.repository";
 import type { UpdateUserDTO } from "../dto/update-user.dto";
 import { AppError } from "../../../shared/errors/AppError";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 
 export class UpdateUserService {

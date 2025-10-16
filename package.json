@@ -11,28 +11,24 @@
     "dev": "tsx watch src/server.ts",
     "build": "rimraf dist && tsc -p tsconfig.json",
     "start": "node dist/server.js",
-
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-
     "db:up": "docker compose -f docker-compose.db.yml up -d",
     "db:down": "docker compose -f docker-compose.db.yml down -v",
-
     "db:test:up": "docker compose -f docker-compose.test.yml up -d",
     "db:test:down": "docker compose -f docker-compose.test.yml down -v",
-
     "test:unit": "cross-env NODE_ENV=test jest --runInBand -c tests/config/jest.unit.config.ts",
     "pretest:e2e": "npm run db:test:up",
     "test:e2e": "cross-env NODE_ENV=test jest --runInBand -c tests/config/jest.config.ts",
     "posttest:e2e": "npm run db:test:down",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
-
     "test": "npm run test:unit && npm run test:e2e",
     "ci": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
@@ -49,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/hpp": "^0.2.6",

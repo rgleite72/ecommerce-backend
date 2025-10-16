@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccess } from "../../shared/auth/jwt";
-import { appDataSource } from "../../app/db/data-source";
+import { AppDataSource } from "../../app/db/data-source";
 import { UserEntity } from "../../modules/users/domain/entities/user.entity";
 
 interface AuthInfo {
@@ -48,7 +48,7 @@ export async function authenticateJWT(
       return res.status(401).json({ error: { message: "Invalid token type" } });
     }
 
-    const repo = appDataSource.getRepository(UserEntity);
+    const repo = AppDataSource.getRepository(UserEntity);
     const user = await repo.findOne({ where: { id: payload.sub } });
 
     if (!user) {
