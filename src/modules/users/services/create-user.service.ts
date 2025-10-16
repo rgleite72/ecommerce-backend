@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import * as bcrypt from "bcrypt";
 import { AppError } from '../../../shared/errors/AppError'
 import type { CreateUserDTO } from '../dto/create-user.dto'
 import type { IUsersRepository } from '../repositories/users.repository'

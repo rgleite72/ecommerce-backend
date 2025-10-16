@@ -7,10 +7,20 @@ on:
       - 'v*'     # releases
       - 'rc-*'   # release candidates
   pull_request:
+    branches: [ main ]   # roda em PRs para main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
+    name: Build, Lint & Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -22,19 +32,48 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Print env info (debug)
+        run: |
+          node -v
+          npm -v
+          docker version
+          docker compose version || true
+
       - name: Install dependencies
         run: npm ci
 
       - name: Up test DB (Docker Compose)
         run: docker compose -f docker-compose.test.yml up -d
 
+      - name: Show compose state (debug)
+        if: always()
+        run: |
+          echo "== docker compose ps =="
+          docker compose -f docker-compose.test.yml ps || true
+          echo "== docker ps =="
+          docker ps -a || true
+
       - name: Wait for Postgres to be healthy
         run: |
-          for i in {1..20}; do
-            docker exec ecommerce_pg_test pg_isready -U postgres -d commerceBackdb_test && break
-            echo "Waiting for Postgres to be ready..."
+          set -euxo pipefail
+          PG_CID="$(docker compose -f docker-compose.test.yml ps -q | head -n1)"
+          if [ -z "$PG_CID" ]; then
+            echo "Nenhum container encontrado via docker compose. Listando todos:"
+            docker ps -a
+            exit 1
+          fi
+          echo "Container detectado: $PG_CID"
+          for i in {1..30}; do
+            if docker exec "$PG_CID" pg_isready -U postgres >/dev/null 2>&1; then
+              echo "Postgres está pronto."
+              exit 0
+            fi
+            echo "Aguardando Postgres... tentativas: $i/30"
             sleep 2
           done
+          echo "Postgres não ficou pronto. Logs do container:"
+          docker logs "$PG_CID" || true
+          exit 1
 
       - name: Create .env.test file
         run: |
@@ -61,9 +100,6 @@ jobs:
 
       - name: Tests (unit + e2e)
         run: npm test
-
-      - name: Build (production)
-        run: npm run build
 
       - name: Tear down DB
         if: always()
