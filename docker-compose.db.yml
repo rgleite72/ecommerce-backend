@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17-alpine # Banco de dados
+    container_name: ecommerce_postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: P@st1933
+      POSTGRES_DB: commerceBackdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d commerceBackdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

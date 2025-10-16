@@ -1,0 +1,17 @@
+# docker-compose.test.yml
+services:
+  postgres_test:
+    image: postgres:17-alpine # Banco de dados
+    container_name: ecommerce_pg_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: P@st1933
+      POSTGRES_DB: commerceBackdb_test
+    ports:
+      - "5433:5432"   # se já usa 5432 local, troque p/ "5433:5432" e ajuste o .env.test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d commerceBackdb_test"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    # testes podem derrubar o volume; não precisa persistir

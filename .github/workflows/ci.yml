@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+    tags:
+      - 'v*'     # releases
+      - 'rc-*'   # release candidates
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Up test DB (Docker Compose)
+        run: docker compose -f docker-compose.test.yml up -d
+
+      - name: Wait for Postgres to be healthy
+        run: |
+          for i in {1..20}; do
+            docker exec ecommerce_pg_test pg_isready -U postgres -d commerceBackdb_test && break
+            echo "Waiting for Postgres to be ready..."
+            sleep 2
+          done
+
+      - name: Create .env.test file
+        run: |
+          echo "NODE_ENV=test" > .env.test
+          echo "PORT=0" >> .env.test
+          echo "DB_HOST=localhost" >> .env.test
+          echo "DB_PORT=5433" >> .env.test
+          echo "DB_USER=postgres" >> .env.test
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env.test
+          echo "DB_NAME=commerceBackdb_test" >> .env.test
+          echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> .env.test
+          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env.test
+          echo "JWT_ACCESS_EXPIRES=2m" >> .env.test
+          echo "JWT_REFRESH_EXPIRES=10m" >> .env.test
+          echo "BCRYPT_SALT_ROUNDS=4" >> .env.test
+          echo "LOG_LEVEL=silent" >> .env.test
+          echo "DISABLE_RATE_LIMIT=true" >> .env.test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests (unit + e2e)
+        run: npm test
+
+      - name: Build (production)
+        run: npm run build
+
+      - name: Tear down DB
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v
