@@ -5,8 +5,8 @@ const config: Config = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: [
-    '<rootDir>/src/**/tests/e2e/**/*.spec.ts',
-    '<rootDir>/src/**/tests/e2e/**/*.test.ts'
+    '<rootDir>/src/**/tests/unit/**/*.spec.ts',
+    '<rootDir>/src/**/tests/unit/**/*.test.ts'
   ],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
